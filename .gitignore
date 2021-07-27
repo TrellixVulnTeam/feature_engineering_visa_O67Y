@@ -1,0 +1,14 @@
+*.xls
+*.xlsx
+*.csv
+*.rds
+*.RDS
+.ipynb_checkpoints
+.DS_Store
+*.sh.e*
+*.sh.o*
+*.txt
+*.xls
+*.xlsx 
+*.h5
+*.pkl

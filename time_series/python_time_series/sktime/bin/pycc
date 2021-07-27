@@ -1,0 +1,3 @@
+#!/Users/anaraquelpengelly/Desktop/imperial_postdoc/visa/time_series/python_time_series/sktime/bin/python
+from numba.pycc import main
+main()

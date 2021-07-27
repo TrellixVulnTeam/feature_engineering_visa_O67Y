@@ -1,0 +1,8 @@
+#!/Users/anaraquelpengelly/Desktop/imperial_postdoc/visa/time_series/python_time_series/sktime/bin/python
+# -*- coding: UTF-8 -*-
+from __future__ import print_function, division, absolute_import
+
+from numba.misc.numba_entry import main
+
+if __name__ == "__main__":
+    main()

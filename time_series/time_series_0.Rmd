@@ -1,0 +1,163 @@
+---
+title: "Time series analysis"
+output: html_notebook
+---
+
+This notebook follows this  [tutorial](https://nwfsc-timeseries.github.io/atsa-labs/chap-tslab.html).
+
+```{r}
+install.packages('stats')
+install.packages('MARSS')
+install.packages('forecast')
+install.packages('datasets')
+install.packages("tidyverse")
+```
+
+```{r}
+install.packages('devtools')
+
+```
+```{r}
+install.packages("rmarkdown")
+library(rmarkdown)
+```
+# Linear regression in matrix form
+
+```{r}
+data("stackloss", package = "datasets")
+dat= stackloss[1:4,]
+dat
+
+```
+
+## simple regression:
+```{r}
+#regress stack loss against air flow
+fit = lm(stack.loss ~ Air.Flow, data =dat)
+Z = model.matrix(fit)
+Z[1:4,]
+```
+
+```{r}
+#using the matrix COVARIANCE formula
+y= matrix(dat$stack.loss, ncol=1)
+Z = cbind(1, dat$Air.Flow)
+solve(t(Z) %*% Z) %*% t(Z) %*% y
+```
+
+
+```{r}
+coef(fit)
+```
+```{r}
+#now with multiple explanatory variables:
+fit_m = lm(stack.loss ~ Air.Flow + Water.Temp + Acid.Conc., data=dat)
+```
+
+
+```{r}
+Z = model.matrix(fit_m)
+Z
+```
+
+```{r}
+#now using matrices:
+y = matrix(dat$stack.loss, ncol=1)
+Z = cbind(1, dat$Air.Flow, dat$Water.Temp, dat$Acid.Conc.)
+solve(t(Z) %*% Z) %*% t(Z) %*% y
+```
+
+
+```{r}
+coef(fit_m)
+```
+
+
+```{r}
+#now use the transform of form 1
+y= matrix(dat$stack.loss, nrow=1)
+d=rbind(1, dat$Air.Flow, dat$Water.Temp, dat$Acid.Conc.)
+y %*% t(d) %*% solve(d %*% t(d))
+```
+## Adding a seasonal effect to the model
+
+```{r}
+#adding in a seasonal effect
+
+dat = cbind(dat, qtr = paste(rep("qtr", 4), 1:4, sep = ""))
+dat
+```
+
+```{r}
+#fit the model with lm
+
+fit_s = lm(stack.loss ~ -1+qtr, data=dat)#with the -1 we get rid of the intercept
+coef(fit_s)
+```
+## Adding a seasonal effect + other explanatory variables
+
+```{r}
+data(stackloss, package = "datasets")
+fulldat = stackloss
+n = nrow(fulldat)
+fulldat = cbind(fulldat, owner = rep(c("sue", "aneesh", "joe"), 
+    n)[1:n], qtr = paste("qtr", rep(1:4, n)[1:n], sep = ""), 
+    reg = rep(c("n", "s"), n)[1:n])
+```
+
+```{r}
+#lets fit the model:
+fit_s1 = lm(stack.loss ~ -1 + qtr + Air.Flow:qtr:owner, data = fulldat)
+Z = model.matrix(fit_s1)
+```
+
+```{r}
+#confounding parameters:
+f = lm(stack.loss ~ -1 + Air.Flow + reg + qtr, data = fulldat)
+coef(f)
+```
+```{r}
+model.matrix(f)
+```
+
+# examples of time series
+
+```{r}
+data("WWWusage")
+par(mai=c(0.9, 0.9,0.1,0.1), omi = c(0,0,0,0))
+plot.ts(WWWusage, ylab = "", las =1, col = 'blue', lwd=2)
+```
+
+```{r}
+lx <- log(AirPassengers)
+par(mai = c(0.9, 0.9, 0.1, 0.1), omi = c(0, 0, 0, 0))
+plot.ts(lx, las = 1, ylab = "")
+```
+
+```{r}
+library(devtools)
+devtools::install_github("r-lib/svglite")
+install.packages("kableExtra")
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS=TRUE)
+devtools::install_github("nwfsc-timeseries/atsar")
+devtools::install_github("nwfsc-timeseries/atsalibrary")
+```
+
+
+
+```{r}
+data(NHTemp, package = "atsalibrary")
+Temp <- NHTemp
+data(MLCO2, package = "atsalibrary")
+CO2 <- MLCO2
+data(hourlyphyto, package = "atsalibrary")
+phyto_dat <- hourlyphyto
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
